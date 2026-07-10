@@ -1,0 +1,15 @@
+*.wav
+*.mp4
+*.mov
+*.mkv
+*.orig.srt
+*.zh.srt
+*.whisper.srt
+*.mimo.txt
+*.synced.srt
+*.swp
+__pycache__/
+*.pyc
+.env
+.DS_Store
+output/
