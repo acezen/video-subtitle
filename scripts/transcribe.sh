@@ -30,8 +30,9 @@ whisper "$AUDIO" \
   --output_format srt \
   --output_dir "$DIR"
 
-mv "$DIR/$BASE.srt" "$DIR/$BASE.orig.srt"
+mv "$DIR/$BASE.srt" "$DIR/$BASE.whisper.srt"
 
 rm -f "$AUDIO"
 
-echo ">>> 完成:原语言字幕已生成 -> $DIR/$BASE.orig.srt"
+echo ">>> 完成:Whisper 原始字幕已生成 -> $DIR/$BASE.whisper.srt"
+echo ">>> 下一步:请由 AI 审核识别错误，人工确认后生成 .orig.srt"

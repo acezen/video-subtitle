@@ -4,23 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是一个 Claude Code Skill，为视频生成中文字幕。支持从 YouTube 下载视频。流水线:yt-dlp 下载视频 → ffmpeg 提取音频 → Whisper/mimo 转录原语言 SRT → AI 翻译校对成中文 SRT。
+这是一个 Claude Code Skill，为视频生成中文字幕。支持从 YouTube 下载视频。流水线:yt-dlp 下载视频 → ffmpeg 提取音频 → Whisper 转录 → AI 审核 + 人工确认 → AI 翻译术语方案 + 人工确认 → AI 翻译生成中文 SRT。
 
 ## 架构
 
 ```
 video-subtitle/
-  SKILL.md                    # Skill 定义与 AI 翻译指令
+  SKILL.md                    # Skill 定义与完整流水线指令
   scripts/
     download.sh               # YouTube 视频下载（优先 1080p mp4）
-    transcribe.sh             # Whisper small 语音识别 → .orig.srt
+    transcribe.sh             # Whisper small 语音识别 → .whisper.srt
     mimo_asr.py               # mimo-v2.5-asr API（暂未启用）
 ```
 
-- `SKILL.md` 定义流水线及 AI 翻译校对规则（保持 SRT 结构、结合背景纠正同音字、地道中文表达）
+- `SKILL.md` 定义完整流水线：下载 → 转录 → AI 审核识别错误 → 人工确认 → AI 术语方案 → 人工确认 → AI 翻译
 - `download.sh` 通过 yt-dlp 下载 YouTube 视频，优先 1080p，输出 mp4
-- `transcribe.sh` 使用 Whisper small 模型进行语音识别
-- 翻译步骤由 AI 模型直接完成，无需脚本
+- `transcribe.sh` 使用 Whisper small 模型进行语音识别，输出 `.whisper.srt`
+- 审核和翻译步骤由 AI 模型完成，需人工确认后继续
 
 ## 外部依赖
 
@@ -34,14 +34,19 @@ video-subtitle/
 # 步骤 0: 下载 YouTube 视频（可选，优先 1080p mp4）
 bash scripts/download.sh "<youtube_url>" "<output_dir>"
 
-# 步骤 1: 提取音频并转录为原语言 SRT
+# 步骤 1: 提取音频并转录为 Whisper 原始字幕
 bash scripts/transcribe.sh "<video_path>" "<source_lang>"
 ```
 
-步骤 2（翻译校对）由 AI 模型直接读取 `.orig.srt` 并输出 `.zh.srt`，无需脚本。
+步骤 2（AI 审核 + 人工确认）：AI 读取 `.whisper.srt`，列出疑似识别错误交用户确认，确认后生成 `.orig.srt`。
+
+步骤 3（术语方案 + 人工确认）：AI 整理专业术语翻译方案交用户确认。
+
+步骤 4（AI 翻译）：AI 读取 `.orig.srt`，按确认的术语表翻译，输出 `.zh.srt`。
 
 ## 关键细节
 
 - `transcribe.sh` 使用 Whisper `small` 模型，速度快且精度足够
+- Whisper 输出为 `.whisper.srt`，经人工审核确认后才生成 `.orig.srt`
+- 翻译前需先提交术语方案给用户确认，确保专业术语翻译准确
 - `mimo_asr.py` 暂未启用，保留备用
-- 翻译时应结合用户提供的视频背景信息，纠正 Whisper 的同音字和专有名词错误

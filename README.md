@@ -5,8 +5,18 @@
 ## 流水线
 
 ```
-YouTube 链接 ──→ yt-dlp 下载 ──→ ffmpeg 提取音频 ──→ Whisper 识别 ──→ AI 翻译 ──→ 中文 SRT
+YouTube 链接 ──→ yt-dlp 下载 ──→ ffmpeg 提取音频 ──→ Whisper 识别 ──→ .whisper.srt
                                   本地视频 ─────────┘
+                                                                    ↓
+                                                            AI 审核识别错误
+                                                                    ↓
+                                                            人工确认修正 → .orig.srt
+                                                                    ↓
+                                                            AI 提出术语翻译方案
+                                                                    ↓
+                                                            人工确认术语
+                                                                    ↓
+                                                            AI 翻译 → 中文 .zh.srt
 ```
 
 ## 前置依赖
@@ -42,11 +52,19 @@ bash scripts/transcribe.sh "<video_path>" "<source_lang>"
 # 例：bash scripts/transcribe.sh video.mp4 en
 ```
 
-生成 `<video_name>.orig.srt`。
+生成 `<video_name>.whisper.srt`（Whisper 原始输出）。
 
-**步骤 2：AI 翻译**
+**步骤 2：AI 审核 + 人工确认**
 
-读取 `.orig.srt`，翻译成中文后写入 `.zh.srt`。翻译规则见 `SKILL.md`。
+AI 分析 `.whisper.srt` 中的疑似识别错误（同音字、专有名词等），列出修正建议表，人工确认后生成 `.orig.srt`。
+
+**步骤 3：术语方案 + 人工确认**
+
+AI 整理视频中的专业术语翻译方案，人工确认译法。
+
+**步骤 4：AI 翻译**
+
+读取 `.orig.srt`，按确认的术语表翻译成中文，写入 `.zh.srt`。翻译规则见 `SKILL.md`。
 
 ## 支持的语言
 
@@ -64,7 +82,7 @@ Whisper 支持多种语言，常用代号：
 
 ```
 video-subtitle/
-├── SKILL.md              # Skill 定义与 AI 翻译规则
+├── SKILL.md              # Skill 定义与完整流水线指令
 ├── README.md
 └── scripts/
     ├── download.sh       # YouTube 视频下载

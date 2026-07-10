@@ -2,9 +2,9 @@
 *.mp4
 *.mov
 *.mkv
+*.whisper.srt
 *.orig.srt
 *.zh.srt
-*.whisper.srt
 *.mimo.txt
 *.synced.srt
 *.swp
