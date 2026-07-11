@@ -59,24 +59,9 @@ if yt-dlp \
   fi
 fi
 
-# 如果没有用户上传字幕，尝试自动生成字幕
+# 如果没有用户上传字幕，跳过自动生成（质量不佳，后续使用 Whisper）
 if [ -z "$SUB_FOUND" ]; then
-  echo "    未找到用户上传字幕，尝试自动生成字幕..."
-  if yt-dlp \
-    --write-auto-sub \
-    --sub-langs "$SRC_LANG" \
-    --sub-format srt \
-    --convert-subs srt \
-    -o "$OUTPUT_DIR/%(title)s.%(ext)s" \
-    --no-playlist \
-    "$URL" 2>/dev/null; then
-    SUB_FILE="$OUTPUT_DIR/$VIDEO_BASE.$SRC_LANG.srt"
-    if [ -f "$SUB_FILE" ]; then
-      mv "$SUB_FILE" "$OUTPUT_DIR/$VIDEO_BASE.downloaded.srt"
-      SUB_FOUND="auto"
-      echo "    ✓ 自动生成字幕已下载"
-    fi
-  fi
+  echo "    未找到用户上传字幕，将使用 Whisper 语音识别"
 fi
 
 # 输出结果

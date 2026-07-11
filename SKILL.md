@@ -1,8 +1,8 @@
 ---
 name: video-subtitle
 description: >-
-  视频转中文字幕的完整流水线。支持从 YouTube 下载视频和字幕。
-  流程为:yt-dlp 下载视频和字幕 → 如有字幕则基于字幕 AI 审核 →
+  视频转中文字幕的完整流水线。支持从 YouTube 下载视频和用户上传字幕。
+  流程为:yt-dlp 下载视频和字幕 → 如有用户上传字幕则 AI 审核 →
   如无字幕则 Whisper 语音识别 → AI 审核校对 → 人工确认 →
   AI 翻译术语方案 → 人工确认 → AI 翻译生成中文 SRT。
   支持用户指定源语言和视频背景信息以提升翻译质量。
@@ -38,9 +38,9 @@ bash scripts/download.sh "<youtube_url>" "<output_dir>" "<source_lang>"
 
 脚本会:
 1. 下载视频(优先 1080p,输出 mp4)
-2. 尝试下载用户上传的字幕(优先)
-3. 如无用户上传字幕,尝试下载 YouTube 自动生成的字幕
-4. 如成功获取字幕,转换为 SRT 格式并重命名为 `<video_name>.downloaded.srt`
+2. 尝试下载用户上传的字幕
+3. 如成功获取字幕,转换为 SRT 格式并重命名为 `<video_name>.downloaded.srt`
+4. 如无用户上传字幕,跳过字幕下载(后续使用 Whisper 识别)
 
 **根据下载结果决定后续流程:**
 
@@ -54,7 +54,7 @@ bash scripts/download.sh "<youtube_url>" "<output_dir>" "<source_lang>"
 读取下载的 `<video_name>.downloaded.srt`,结合用户提供的视频背景信息,
 审核字幕质量,包括但不限于:
 
-- 自动生成字幕常见的识别错误(同音字、专有名词)
+- 识别错误(同音字、专有名词)
 - 断句不合理导致的语义错误
 - 时间轴与内容不匹配的问题
 - 重复或遗漏的内容

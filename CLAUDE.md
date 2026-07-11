@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是一个 Claude Code Skill，为视频生成中文字幕。支持从 YouTube 下载视频和字幕。流水线:yt-dlp 下载视频和字幕 → 如有字幕则 AI 审核 → 如无字幕则 Whisper 转录 → AI 审核 + 人工确认 → AI 翻译术语方案 + 人工确认 → AI 翻译生成中文 SRT。
+这是一个 Claude Code Skill，为视频生成中文字幕。支持从 YouTube 下载视频和用户上传字幕。流水线:yt-dlp 下载视频和字幕 → 如有用户上传字幕则 AI 审核 → 如无字幕则 Whisper 转录 → AI 审核 + 人工确认 → AI 翻译术语方案 + 人工确认 → AI 翻译生成中文 SRT。
 
 ## 架构
 
@@ -18,7 +18,7 @@ video-subtitle/
 ```
 
 - `SKILL.md` 定义完整流水线：下载视频+字幕 → 字幕审核或 Whisper 转录 → AI 审核识别错误 → 人工确认 → AI 术语方案 → 人工确认 → AI 翻译
-- `download.sh` 通过 yt-dlp 下载 YouTube 视频和字幕，优先 1080p，输出 mp4；字幕优先用户上传，其次自动生成
+- `download.sh` 通过 yt-dlp 下载 YouTube 视频和用户上传字幕，优先 1080p，输出 mp4
 - `transcribe.sh` 使用 Whisper small 模型进行语音识别，输出 `.whisper.srt`
 - 审核和翻译步骤由 AI 模型完成，需人工确认后继续
 
@@ -48,7 +48,7 @@ bash scripts/transcribe.sh "<video_path>" "<source_lang>"
 
 ## 关键细节
 
-- `download.sh` 下载字幕时优先用户上传，其次自动生成，保存为 `.downloaded.srt`
+- `download.sh` 仅下载用户上传字幕，保存为 `.downloaded.srt`；无用户字幕时由 Whisper 转录
 - 下载的字幕和 Whisper 输出都需经人工审核确认后才生成 `.orig.srt`
 - `transcribe.sh` 使用 Whisper `small` 模型，速度快且精度足够
 - 翻译前需先提交术语方案给用户确认，确保专业术语翻译准确

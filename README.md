@@ -1,23 +1,23 @@
 # video-subtitle
 
-视频转中文字幕的 Claude Code Skill。支持从 YouTube 下载视频和字幕，优先使用官方字幕，无字幕时通过 Whisper 语音识别生成原语言字幕，再由 AI 翻译校对成中文。
+视频转中文字幕的 Claude Code Skill。支持从 YouTube 下载视频和用户上传字幕，无用户字幕时通过 Whisper 语音识别生成原语言字幕，再由 AI 翻译校对成中文。
 
 ## 流水线
 
 ```
-YouTube 链接 ──→ yt-dlp 下载视频+字幕 ──→ 有字幕？
-                  本地视频 ─────────┘         ↓ 是          ↓ 否
-                                        AI 审核字幕      Whisper 识别
-                                              ↓              ↓
-                                        人工确认修正    AI 审核识别错误
-                                              ↓              ↓
-                                              └──→ .orig.srt ←─┘
-                                                        ↓
-                                                AI 提出术语翻译方案
-                                                        ↓
-                                                    人工确认术语
-                                                        ↓
-                                                AI 翻译 → 中文 .zh.srt
+YouTube 链接 ──→ yt-dlp 下载视频+用户字幕 ──→ 有用户字幕？
+                  本地视频 ─────────┘             ↓ 是          ↓ 否
+                                            AI 审核字幕      Whisper 识别
+                                                  ↓              ↓
+                                            人工确认修正    AI 审核识别错误
+                                                  ↓              ↓
+                                                  └──→ .orig.srt ←─┘
+                                                            ↓
+                                                    AI 提出术语翻译方案
+                                                            ↓
+                                                        人工确认术语
+                                                            ↓
+                                                    AI 翻译 → 中文 .zh.srt
 ```
 
 ## 前置依赖
@@ -46,8 +46,8 @@ Claude 会自动执行完整流水线并翻译。
 bash scripts/download.sh "https://www.youtube.com/watch?v=xxx" "./output" "en"
 ```
 
-脚本会优先下载用户上传字幕，其次下载 YouTube 自动生成字幕。
-如有字幕，生成 `<video_name>.downloaded.srt`；如无字幕，需使用 Whisper。
+脚本仅下载用户上传字幕（YouTube 自动生成字幕质量不佳，已跳过）。
+如有用户上传字幕，生成 `<video_name>.downloaded.srt`；如无字幕，需使用 Whisper。
 
 **步骤 1（无字幕时）：语音识别生成原语言 SRT**
 
