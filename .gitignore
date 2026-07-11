@@ -2,6 +2,7 @@
 *.mp4
 *.mov
 *.mkv
+*.downloaded.srt
 *.whisper.srt
 *.orig.srt
 *.zh.srt
